@@ -17,7 +17,8 @@ import frc.robot.commands.*;
 import frc.robot.RobotMap;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.VictorSP;
-
+import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * An example subsystem.  You can replace me with your own Subsystem.
@@ -25,7 +26,7 @@ import edu.wpi.first.wpilibj.VictorSP;
 public class LAD extends Subsystem {
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
-  
+  public static AHRS ahrs;
   static final double kOffBalanceAngleThresholdDegrees = 10;
   static final double kOonBalanceAngleThresholdDegrees  = 5;
   boolean autoBalanceXMode=false;
@@ -79,25 +80,43 @@ public class LAD extends Subsystem {
   }
 
   public void updateAll(double p_front, double p_rear) {
-    // Update motor speed to passed in value
-    double pitchAngleDegrees    = Robot.ahrs.getPitch();
+    double frontRate            = .4;
+    double pitchRate            = 0;
+    double rearRate            = .6;
+    double pitchAngleDegrees    = ahrs.getPitch();
+    double rollAngleDegrees     = ahrs.getRoll();
+    ahrs.getAltitude();
+    //This code is for autobalance when climbing!!!
     if ( !autoBalanceXMode && 
         (Math.abs(pitchAngleDegrees) >= 
-        Math.abs(kOffBalanceAngleThresholdDegrees))) {
-      autoBalanceXMode = true;
+          Math.abs(kOffBalanceAngleThresholdDegrees))) {
+        autoBalanceXMode = true;
     }
     else if ( autoBalanceXMode && 
-            (Math.abs(pitchAngleDegrees) <= 
+              (Math.abs(pitchAngleDegrees) <= 
               Math.abs(kOonBalanceAngleThresholdDegrees))) {
-      autoBalanceXMode = false;
+        autoBalanceXMode = false;
     }
     if ( autoBalanceXMode ) {
         double pitchAngleRadians = pitchAngleDegrees * (Math.PI / 180.0);
-        //p_front = Math.sin(pitchAngleRadians) * -1;
-        //p_rear = Math.sin(pitchAngleRadians) * -1;
-        System.out.println(Math.sin(pitchAngleRadians) * -1);
-        //System.out.println(Math.sin(pitchAngleRadians) * -1);
+        pitchRate = Math.sin(pitchAngleRadians) * -1;
     }
+    
+    try {      
+      if (pitchRate < 0) {
+        p_front = frontRate*pitchRate*1.5;
+      } else if (pitchRate > 0) {
+        p_rear = rearRate*pitchRate*1.5;
+      }
+      System.out.println("front: "+p_front);
+      System.out.println("rear: "+p_rear);
+       // myRobot.driveCartesian(xAxisRate, yAxisRate, stick.getTwist(),0);
+    } catch( RuntimeException ex ) {
+        String err_string = "Drive system error:  " + ex.getMessage();
+        DriverStation.reportError(err_string, true);
+    }
+    //This code is for autobalance when climbing!!!
+
     //updateFront(p_front);
     //updateRear(p_rear);
   }

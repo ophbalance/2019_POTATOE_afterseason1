@@ -27,6 +27,17 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.*;
+import edu.wpi.first.networktables.*;
+import edu.wpi.first.wpilibj.AnalogGyro;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.TimedRobot;
+import jaci.pathfinder.Pathfinder;
+import jaci.pathfinder.PathfinderFRC;
+import jaci.pathfinder.Trajectory;
+import jaci.pathfinder.followers.EncoderFollower;
 
 
 /**
@@ -37,18 +48,26 @@ import com.ctre.phoenix.motorcontrol.can.*;
  * project.
  */
 public class Robot extends TimedRobot {
-  public static Squishy squishy;
-  public static LAD lad;
-  public static Elevator elevator;
-  public static DriveTrain drive;
-  public static AHRS ahrs;
-  public double startTime=0;
-  WPI_TalonSRX _leftMaster = new WPI_TalonSRX(11);
+    public static Squishy squishy;
+    public static LAD lad;
+    public static Elevator elevator;
+    public static DriveTrain drive;
+    public static AHRS ahrs;
+    boolean autoBalanceXMode;
+    boolean autoBalanceYMode;
+    static final double kOffBalanceAngleThresholdDegrees = 10;
+    static final double kOonBalanceAngleThresholdDegrees  = 5;
+    public double startTime=0;
+    WPI_TalonSRX _leftMaster = new WPI_TalonSRX(11);
     WPI_TalonSRX _rightMaster = new WPI_TalonSRX(10);
     WPI_VictorSPX  _leftFollow = new WPI_VictorSPX (13);
     WPI_VictorSPX  _rightFollow = new WPI_VictorSPX (12);
     DifferentialDrive _drive = new DifferentialDrive(_leftMaster, _rightMaster);
-  
+    private boolean driverVision, tapeVision, cargoVision, cargoSeen, tapeSeen   ;
+    private NetworkTableEntry tapeDetected, cargoDetected, tapeYaw, cargoYaw, videoTimestamp, driveWanted,tapeWanted,cargoWanted;
+    private double targetAngle;
+    NetworkTableInstance instance;
+    NetworkTable chickenVision;
 
   public static OI m_oi;
 
@@ -79,25 +98,60 @@ public class Robot extends TimedRobot {
           //  DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
        // }
         
-    squishy = new Squishy();
+    //squishy = new Squishy();
     lad =  new LAD();
-    elevator = new Elevator();
+    //elevator = new Elevator();
     /* COMMENT ME TO USE DRIVE IN THIS FILE */
     drive = new DriveTrain();
     /* */
     _leftMaster.configFactoryDefault();
-        _rightMaster.configFactoryDefault();
-        _leftFollow.configFactoryDefault();
-        _rightFollow.configFactoryDefault();
-        
-        _leftFollow.follow(_leftMaster);
-        _rightFollow.follow(_rightMaster);
-        
-        _leftMaster.setInverted(false); // <<<<<< Adjust this until robot drives forward when stick is forward
-        _rightMaster.setInverted(true); // <<<<<< Adjust this until robot drives forward when stick is forward
-        _leftFollow.setInverted(InvertType.FollowMaster);
-        _rightFollow.setInverted(InvertType.FollowMaster);
-        _drive.setRightSideInverted(false); // do not change this
+    _rightMaster.configFactoryDefault();
+    _leftFollow.configFactoryDefault();
+    _rightFollow.configFactoryDefault();
+    
+    _leftFollow.follow(_leftMaster);
+    _rightFollow.follow(_rightMaster);
+    
+    _leftMaster.setInverted(false); // <<<<<< Adjust this until robot drives forward when stick is forward
+    _rightMaster.setInverted(true); // <<<<<< Adjust this until robot drives forward when stick is forward
+    _leftFollow.setInverted(InvertType.FollowMaster);
+    _rightFollow.setInverted(InvertType.FollowMaster);
+    _drive.setRightSideInverted(false); // do not change this
+    try {
+			/***********************************************************************
+			 * navX-MXP:
+			 * - Communication via RoboRIO MXP (SPI, I2C, TTL UART) and USB.            
+			 * - See http://navx-mxp.kauailabs.com/guidance/selecting-an-interface.
+			 * 
+			 * navX-Micro:
+			 * - Communication via I2C (RoboRIO MXP or Onboard) and USB.
+			 * - See http://navx-micro.kauailabs.com/guidance/selecting-an-interface.
+			 * 
+			 * Multiple navX-model devices on a single robot are supported.
+			 ************************************************************************/
+            ahrs = new AHRS(SPI.Port.kMXP); 
+        } catch (RuntimeException ex ) {
+            DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
+        }
+        System.out.println("Starting Navx");
+        instance = NetworkTableInstance.getDefault();
+ 
+        chickenVision = instance.getTable("ChickenVision");
+ 
+        tapeDetected = chickenVision.getEntry("tapeDetected");
+        cargoDetected = chickenVision.getEntry("cargoDetected");
+        tapeYaw = chickenVision.getEntry("tapeYaw");
+        cargoYaw = chickenVision.getEntry("cargoYaw");
+ 
+        driveWanted = chickenVision.getEntry("Driver");
+        tapeWanted = chickenVision.getEntry("Tape");
+        cargoWanted = chickenVision.getEntry("Cargo");
+ 
+        videoTimestamp = chickenVision.getEntry("VideoTimestamp");
+ 
+        tapeVision = cargoVision = false;
+        driverVision = true;
+        targetAngle = 0;
 
     m_oi = new OI();
     //m_chooser.setDefaultOption("Default Auto", new ExampleCommand());
@@ -222,16 +276,72 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     Scheduler.getInstance().run();
 
-    
+    double kP = 1.2;
+    double frontRate            = .4;
+    double pitchRate            = 0;
+    double rearRate            = .6;
+    double yAxisRate            = m_oi._operator.getY();
+    double pitchAngleDegrees    = ahrs.getPitch();
+    double rollAngleDegrees     = ahrs.getRoll();
+    boolean tapeDesired = m_oi._driver.getRawButton(1);
+    boolean cargoDesired = m_oi._driver.getRawButton(2);
+
     double forward = 1 * m_oi._driver.getY();
     double turn = m_oi._driver.getTwist();
-    //ouble liftup = m_oi._operator.getY();
-    //double driveLift = m_oi._game2.getRawAxis(5);
-    forward = Deadband(forward);
-    turn = Deadband(turn);
-    //_leftMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, turn*.35);
-    //_rightMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn*.35);
-    _drive.arcadeDrive(-forward, turn);
+
+    //This code is all about vision tracking!!!
+    // If button 1 is pressed, then it will track cargo
+    if (cargoDesired) {
+ 
+      driveWanted.setBoolean(false);
+      tapeWanted.setBoolean(false);
+      cargoWanted.setBoolean(true);
+      cargoSeen = cargoDetected.getBoolean(false);
+
+      if (cargoSeen)
+          targetAngle = cargoYaw.getDouble(0);
+      else
+          targetAngle = 0;
+
+    } else if (tapeDesired) {
+
+
+        driveWanted.setBoolean(false);
+        tapeWanted.setBoolean(true);
+        cargoWanted.setBoolean(false);
+        // Checks if vision sees cargo or vision targets. This may not get called unless
+        // cargo vision detected
+        tapeSeen = tapeDetected.getBoolean(false);
+
+        if (tapeSeen)
+            targetAngle = tapeYaw.getDouble(0);
+        else
+            targetAngle = 0;
+
+    } else {
+
+
+        driveWanted.setBoolean(true);
+        tapeWanted.setBoolean(false);
+        cargoWanted.setBoolean(false);
+
+        targetAngle = 0;
+
+    }
+    //This code is all about vision tracking!!!
+
+
+    
+
+    forward = Math.pow(forward, 2);
+    turn = Math.pow(turn, 2);
+    double output = limitOutput(-kP * targetAngle, 0.4);
+
+    //So, hey.  We pressed a button.  So turn to a target.
+    if (cargoDesired || tapeDesired)    
+      _drive.arcadeDrive(-forward, -output);
+    else  //Or not, cuz, that's like fine too
+       _drive.arcadeDrive(-forward, turn);
     
   }
 
@@ -247,6 +357,25 @@ double Deadband(double value) {
   
   /* Outside deadband */
   return 0;
+}
+
+//Do a nifty thing to limit power applied to turning
+public double limitOutput(double number, double maxOutput) {
+  if (number > 1.0) {
+      number = 1.0;
+  }
+  if (number < -1.0) {
+      number = -1.0;
+  }
+
+  if (number > maxOutput) {
+      return maxOutput;
+  }
+  if (number < -maxOutput) {
+      return -maxOutput;
+  }
+
+  return number;
 }
 
   /**
