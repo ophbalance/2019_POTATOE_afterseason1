@@ -98,9 +98,9 @@ public class Robot extends TimedRobot {
           //  DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
        // }
         
-    //squishy = new Squishy();
+    squishy = new Squishy();
     lad =  new LAD();
-    //elevator = new Elevator();
+    elevator = new Elevator();
     /* COMMENT ME TO USE DRIVE IN THIS FILE */
     drive = new DriveTrain();
     /* */
@@ -333,8 +333,8 @@ public class Robot extends TimedRobot {
 
     
 
-    forward = Math.pow(forward, 2);
-    turn = Math.pow(turn, 2);
+    //forward = Math.pow(forward, 2);
+    //turn = Math.pow(turn, 2);
     double output = limitOutput(-kP * targetAngle, 0.4);
 
     //So, hey.  We pressed a button.  So turn to a target.

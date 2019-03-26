@@ -117,7 +117,7 @@ public class LAD extends Subsystem {
     }
     //This code is for autobalance when climbing!!!
 
-    //updateFront(p_front);
-    //updateRear(p_rear);
+    updateFront(p_front);
+    updateRear(p_rear);
   }
 }
