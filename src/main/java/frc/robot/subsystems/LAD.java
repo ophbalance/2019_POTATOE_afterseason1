@@ -65,8 +65,8 @@ public class LAD extends Subsystem {
     double input = Robot.m_oi._operator.getRawAxis(RobotMap.OP_XBOX_LEFTSTICK);
     double input2 = Robot.m_oi._operator.getRawAxis(RobotMap.OP_XBOX_RIGHTSTICK);
 
-    updateFront(-input);
-    updateRear(input2);
+    updateFront(-input2);
+    updateRear(input);
     System.out.println("LAD axis up/down");
     System.out.println(input);
     System.out.println(input2);

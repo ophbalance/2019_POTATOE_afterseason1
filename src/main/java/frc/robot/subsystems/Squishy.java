@@ -22,7 +22,7 @@ public class Squishy extends Subsystem {
     Spark leftendo = new Spark(RobotMap.INTAKE_LEFT);
     Spark rightendo = new Spark(RobotMap.INTAKE_RIGHT);
     VictorSP open = new VictorSP(RobotMap.OPEN);
-    Spark tilt = new Spark(RobotMap.TILT);
+    VictorSP tilt = new VictorSP(RobotMap.TILT);
 
   @Override
   public void initDefaultCommand() {
@@ -49,9 +49,9 @@ public class Squishy extends Subsystem {
       rightendo.set(-p_val);
     }
 
-    public void tilt() {
+    public void tilt(double p_val) {
       // Update motor speed to passed in value
-      //tilt.set(p_val);
+      tilt.set(p_val);
     }
 
     public void tiltupdate(double p_val) {

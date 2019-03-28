@@ -29,14 +29,14 @@ public class RobotMap {
   public static final double DRIVE_SPEED = 1;   //const
   
   //Elevator
-  public static final int LIFT = 3;             //PWM
+  public static final int LIFT = 4;             //PWM
   public static final double LIFT_SPEED = .6;   //const
 
   //Squishy
   public static final int INTAKE_LEFT = 7;        //PWM
   public static final int INTAKE_RIGHT = 6;       //PWM
   public static final int OPEN = 5;               //PWM
-  public static final int TILT = 4;               //PWM
+  public static final int TILT = 3;               //PWM
   public static final double INTAKE_SPEED = .6;   //const
   public static final double EXHAUST_SPEED = .6;  //const
   public static final double TILT_SPEED = .6;   //const

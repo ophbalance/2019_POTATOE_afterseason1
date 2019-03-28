@@ -9,6 +9,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.*;
 
 /**
@@ -17,8 +18,8 @@ import frc.robot.commands.*;
  */
 public class OI {
   public Joystick _driver = new Joystick(RobotMap.OI_DRIVER_CONTROLLER); 
-  public Joystick _operator = new Joystick(RobotMap.OI_OP_CONTROLLER);
-  public Joystick _squishy = new Joystick(RobotMap.OI_SQUISHY);
+  public XboxController _operator = new XboxController(RobotMap.OI_OP_CONTROLLER);
+  public XboxController _squishy = new XboxController(RobotMap.OI_SQUISHY);
 
   /*public Button LADfrontClimb = new JoystickButton(_operator, 2);
   public Button LADrearClimb = new JoystickButton(_operator, 3);
@@ -31,7 +32,8 @@ public class OI {
   public Button SquishyClawOpen = new JoystickButton(_operator, 9);
   public Button SquishyClawClose = new JoystickButton(_operator, 10);
 */
-public Button LADDriveFwd = new JoystickButton(_operator, 1);
+//public Button LADDriveFwd = new JoystickButton(_operator, 1);
+public Button LADDriveFwd = new JoystickButton(_operator, 6);
 public Button LADUpdateAll = new JoystickButton(_operator, 4);
 
 //NEEDS TESTING, not sure button map

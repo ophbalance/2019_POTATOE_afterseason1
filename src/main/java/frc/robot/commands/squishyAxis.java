@@ -27,7 +27,7 @@ public class squishyAxis extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    Robot.squishy.intakeUpdate(Robot.m_oi._squishy.getRawAxis(RobotMap.SQUISHY_XBOX_LEFTSTICK));
+    Robot.squishy.tilt(Robot.m_oi._squishy.getRawAxis(RobotMap.SQUISHY_XBOX_RIGHTSTICK));
     //System.out.println("Squishy Intake Axis called");
   }
 
