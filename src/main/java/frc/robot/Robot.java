@@ -288,6 +288,8 @@ public class Robot extends TimedRobot {
 
     double forward = 1 * m_oi._driver.getY();
     double turn = m_oi._driver.getTwist();
+    double convertFwd = 0;
+    double convertTrn = 0;
 
     //This code is all about vision tracking!!!
     // If button 1 is pressed, then it will track cargo
@@ -333,8 +335,11 @@ public class Robot extends TimedRobot {
 
     
 
-    //forward = Math.pow(forward, 2);
-    //turn = Math.pow(turn, 2);
+    convertFwd = Math.pow(forward, 2);
+      if(forward < 0) forward=convertFwd * -1;
+    convertTrn = Math.pow(turn, 3);
+      if(turn < 0) turn=convertTrn * -1;
+
     double output = limitOutput(-kP * targetAngle, 0.4);
 
     //So, hey.  We pressed a button.  So turn to a target.

@@ -51,7 +51,10 @@ public class Squishy extends Subsystem {
 
     public void tilt(double p_val) {
       // Update motor speed to passed in value
-      tilt.set(p_val);
+      double convertVal = 0;
+      convertVal = Math.pow(p_val, 2);
+        if(p_val < 0) convertVal=convertVal * -1;
+      tilt.set(convertVal);
     }
 
     public void tiltupdate(double p_val) {
