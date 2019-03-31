@@ -18,7 +18,7 @@ import frc.robot.OI;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.Timer;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.kauailabs.navx.frc.AHRS;
+//import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 
 
@@ -28,16 +28,11 @@ import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.networktables.*;
-import edu.wpi.first.wpilibj.AnalogGyro;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Notifier;
+
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.TimedRobot;
-import jaci.pathfinder.Pathfinder;
-import jaci.pathfinder.PathfinderFRC;
-import jaci.pathfinder.Trajectory;
-import jaci.pathfinder.followers.EncoderFollower;
+
 
 
 /**
@@ -52,7 +47,7 @@ public class Robot extends TimedRobot {
     public static LAD lad;
     public static Elevator elevator;
     public static DriveTrain drive;
-    public static AHRS ahrs;
+  //  public static AHRS ahrs;
     boolean autoBalanceXMode;
     boolean autoBalanceYMode;
     static final double kOffBalanceAngleThresholdDegrees = 10;
@@ -117,7 +112,7 @@ public class Robot extends TimedRobot {
     _leftFollow.setInverted(InvertType.FollowMaster);
     _rightFollow.setInverted(InvertType.FollowMaster);
     _drive.setRightSideInverted(false); // do not change this
-    try {
+    /*try {
 			/***********************************************************************
 			 * navX-MXP:
 			 * - Communication via RoboRIO MXP (SPI, I2C, TTL UART) and USB.            
@@ -129,10 +124,10 @@ public class Robot extends TimedRobot {
 			 * 
 			 * Multiple navX-model devices on a single robot are supported.
 			 ************************************************************************/
-            ahrs = new AHRS(SPI.Port.kMXP); 
+        /*    ahrs = new AHRS(SPI.Port.kMXP); 
         } catch (RuntimeException ex ) {
             DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
-        }
+        }*/
         System.out.println("Starting Navx");
         instance = NetworkTableInstance.getDefault();
  
@@ -281,8 +276,8 @@ public class Robot extends TimedRobot {
     double pitchRate            = 0;
     double rearRate            = .6;
     double yAxisRate            = m_oi._operator.getY();
-    double pitchAngleDegrees    = ahrs.getPitch();
-    double rollAngleDegrees     = ahrs.getRoll();
+    //double pitchAngleDegrees    = ahrs.getPitch();
+    //Sdouble rollAngleDegrees     = ahrs.getRoll();
     boolean tapeDesired = m_oi._driver.getRawButton(1);
     boolean cargoDesired = m_oi._driver.getRawButton(2);
 
@@ -337,9 +332,11 @@ public class Robot extends TimedRobot {
 
     convertFwd = Math.pow(forward, 2);
       if(forward < 0) forward=convertFwd * -1;
-    convertTrn = Math.pow(turn, 3);
+    convertTrn=Deadband(turn);
+    convertTrn = Math.pow(convertTrn, 2);
       if(turn < 0) turn=convertTrn * -1;
-
+    if(turn > .75) turn=.75;
+    if(turn < -.75) turn=-.75;
     double output = limitOutput(-kP * targetAngle, 0.4);
 
     //So, hey.  We pressed a button.  So turn to a target.

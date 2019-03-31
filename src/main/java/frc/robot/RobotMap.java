@@ -25,7 +25,7 @@ public class RobotMap {
   public static final int LAD_BACK = 0;         //PWM
   public static final int LAD_DRIVE = 2;        //PWM
   public static final double FRONT_SPEED = .5;  //const
-  public static final double REAR_SPEED = .5;   //const
+  public static final double REAR_SPEED = .4;   //const
   public static final double DRIVE_SPEED = 1;   //const
   
   //Elevator
