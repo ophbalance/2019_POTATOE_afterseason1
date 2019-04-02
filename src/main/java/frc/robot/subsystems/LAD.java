@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.VictorSP;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.SPI;
 
 /**
  * An example subsystem.  You can replace me with your own Subsystem.
@@ -42,7 +43,22 @@ public class LAD extends Subsystem {
   public void initDefaultCommand() {
     // Set the default command for a subsystem here.
      setDefaultCommand(new LADAxis());
-     
+     try {
+			/***********************************************************************
+			 * navX-MXP:
+			 * - Communication via RoboRIO MXP (SPI, I2C, TTL UART) and USB.            
+			 * - See http://navx-mxp.kauailabs.com/guidance/selecting-an-interface.
+			 * 
+			 * navX-Micro:
+			 * - Communication via I2C (RoboRIO MXP or Onboard) and USB.
+			 * - See http://navx-micro.kauailabs.com/guidance/selecting-an-interface.
+			 * 
+			 * Multiple navX-model devices on a single robot are supported.
+			 ************************************************************************/
+            ahrs = new AHRS(SPI.Port.kMXP); 
+        } catch (RuntimeException ex ) {
+            DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
+        }
   }
 
 
@@ -82,10 +98,11 @@ public class LAD extends Subsystem {
   public void updateAll(double p_front, double p_rear) {
     double frontRate            = .4;
     double pitchRate            = 0;
-    double rearRate            = .6;
+    double rearRate            = -.8;
     double pitchAngleDegrees    = ahrs.getPitch();
     double rollAngleDegrees     = ahrs.getRoll();
     ahrs.getAltitude();
+
     //This code is for autobalance when climbing!!!
     if ( !autoBalanceXMode && 
         (Math.abs(pitchAngleDegrees) >= 
@@ -116,7 +133,9 @@ public class LAD extends Subsystem {
         DriverStation.reportError(err_string, true);
     }
     //This code is for autobalance when climbing!!!
-
+    System.out.println("pitch: "+pitchRate);
+    System.out.println("front: "+p_front);
+    System.out.println("rear: "+p_rear);
     updateFront(p_front);
     updateRear(p_rear);
   }

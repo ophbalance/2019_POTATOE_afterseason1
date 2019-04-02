@@ -18,7 +18,7 @@ import frc.robot.OI;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.Timer;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.kauailabs.navx.frc.AHRS;
+//import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 
 
@@ -52,7 +52,7 @@ public class Robot extends TimedRobot {
     public static LAD lad;
     public static Elevator elevator;
     public static DriveTrain drive;
-    public static AHRS ahrs;
+  //  public static AHRS ahrs;
     boolean autoBalanceXMode;
     boolean autoBalanceYMode;
     static final double kOffBalanceAngleThresholdDegrees = 10;
@@ -117,7 +117,7 @@ public class Robot extends TimedRobot {
     _leftFollow.setInverted(InvertType.FollowMaster);
     _rightFollow.setInverted(InvertType.FollowMaster);
     _drive.setRightSideInverted(false); // do not change this
-    try {
+    /*try {
 			/***********************************************************************
 			 * navX-MXP:
 			 * - Communication via RoboRIO MXP (SPI, I2C, TTL UART) and USB.            
@@ -129,10 +129,10 @@ public class Robot extends TimedRobot {
 			 * 
 			 * Multiple navX-model devices on a single robot are supported.
 			 ************************************************************************/
-            ahrs = new AHRS(SPI.Port.kMXP); 
+        /*    ahrs = new AHRS(SPI.Port.kMXP); 
         } catch (RuntimeException ex ) {
             DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
-        }
+        }*/
         System.out.println("Starting Navx");
         instance = NetworkTableInstance.getDefault();
  
@@ -224,65 +224,13 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     Scheduler.getInstance().run();
 
-    //TIMED TEST
-    /*
-    if (startTime < 4){
-      _drive.arcadeDrive(-.4, 0);
-    }
-    */
-    double forward = 1 * m_oi._driver.getY();
-    double turn = m_oi._driver.getTwist();
-    //ouble liftup = m_oi._operator.getY();
-    //double driveLift = m_oi._game2.getRawAxis(5);
-    forward = Deadband(forward);
-    turn = Deadband(turn);
-    //_leftMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, turn*.55);
-    //_rightMaster.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -turn*.55);
-    _drive.arcadeDrive(-forward, turn);
-    //                                                                                                                                                                                                                                                                                                                                                                                                    teleopPeriodic();
-  }
-
-  @Override
-  public void teleopInit() {
-    // This makes sure that the autonomous stops running when
-    // teleop starts running. If you want the autonomous to
-    // continue until interrupted by another command, remove
-    // this line or comment it out.
-
-    /*
-    _leftMaster.configFactoryDefault();
-        _rightMaster.configFactoryDefault();
-        _leftFollow.configFactoryDefault();
-        _rightFollow.configFactoryDefault();
-        
-        _leftFollow.follow(_leftMaster);
-        _rightFollow.follow(_rightMaster);
-        
-        _leftMaster.setInverted(false); // <<<<<< Adjust this until robot drives forward when stick is forward
-        _rightMaster.setInverted(true); // <<<<<< Adjust this until robot drives forward when stick is forward
-        _leftFollow.setInverted(InvertType.FollowMaster);
-        _rightFollow.setInverted(InvertType.FollowMaster);
-        _drive.setRightSideInverted(false); // do not change this
-*/
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
-    }
-  }
-
-  /**
-   * This function is called periodically during operator control.
-   */
-  @Override
-  public void teleopPeriodic() {
-    Scheduler.getInstance().run();
-
     double kP = 1.2;
     double frontRate            = .4;
     double pitchRate            = 0;
     double rearRate            = .6;
     double yAxisRate            = m_oi._operator.getY();
-    double pitchAngleDegrees    = ahrs.getPitch();
-    double rollAngleDegrees     = ahrs.getRoll();
+    //double pitchAngleDegrees    = ahrs.getPitch();
+    //Sdouble rollAngleDegrees     = ahrs.getRoll();
     boolean tapeDesired = m_oi._driver.getRawButton(1);
     boolean cargoDesired = m_oi._driver.getRawButton(2);
 
@@ -337,9 +285,121 @@ public class Robot extends TimedRobot {
 
     convertFwd = Math.pow(forward, 2);
       if(forward < 0) forward=convertFwd * -1;
-    convertTrn = Math.pow(turn, 3);
+    convertTrn=Deadband(turn);
+    convertTrn = Math.pow(convertTrn, 2);
       if(turn < 0) turn=convertTrn * -1;
+    if(turn > .75) turn=.75;
+    if(turn < -.75) turn=-.75;
+    double output = limitOutput(-kP * targetAngle, 0.4);
 
+    //So, hey.  We pressed a button.  So turn to a target.
+    if (cargoDesired || tapeDesired)    
+      _drive.arcadeDrive(-forward, -output);
+    else  //Or not, cuz, that's like fine too
+       _drive.arcadeDrive(-forward, turn);
+      
+  }
+
+  @Override
+  public void teleopInit() {
+    // This makes sure that the autonomous stops running when
+    // teleop starts running. If you want the autonomous to
+    // continue until interrupted by another command, remove
+    // this line or comment it out.
+
+    /*
+    _leftMaster.configFactoryDefault();
+        _rightMaster.configFactoryDefault();
+        _leftFollow.configFactoryDefault();
+        _rightFollow.configFactoryDefault();
+        
+        _leftFollow.follow(_leftMaster);
+        _rightFollow.follow(_rightMaster);
+        
+        _leftMaster.setInverted(false); // <<<<<< Adjust this until robot drives forward when stick is forward
+        _rightMaster.setInverted(true); // <<<<<< Adjust this until robot drives forward when stick is forward
+        _leftFollow.setInverted(InvertType.FollowMaster);
+        _rightFollow.setInverted(InvertType.FollowMaster);
+        _drive.setRightSideInverted(false); // do not change this
+*/
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.cancel();
+    }
+  }
+
+  /**
+   * This function is called periodically during operator control.
+   */
+  @Override
+  public void teleopPeriodic() {
+    Scheduler.getInstance().run();
+
+    double kP = 1.2;
+    double frontRate            = .4;
+    double pitchRate            = 0;
+    double rearRate            = .6;
+    double yAxisRate            = m_oi._operator.getY();
+    //double pitchAngleDegrees    = ahrs.getPitch();
+    //Sdouble rollAngleDegrees     = ahrs.getRoll();
+    boolean tapeDesired = m_oi._driver.getRawButton(1);
+    boolean cargoDesired = m_oi._driver.getRawButton(2);
+
+    double forward = 1 * m_oi._driver.getY();
+    double turn = m_oi._driver.getTwist();
+    double convertFwd = 0;
+    double convertTrn = 0;
+
+    //This code is all about vision tracking!!!
+    // If button 1 is pressed, then it will track cargo
+    if (cargoDesired) {
+ 
+      driveWanted.setBoolean(false);
+      tapeWanted.setBoolean(false);
+      cargoWanted.setBoolean(true);
+      cargoSeen = cargoDetected.getBoolean(false);
+
+      if (cargoSeen)
+          targetAngle = cargoYaw.getDouble(0);
+      else
+          targetAngle = 0;
+
+    } else if (tapeDesired) {
+
+
+        driveWanted.setBoolean(false);
+        tapeWanted.setBoolean(true);
+        cargoWanted.setBoolean(false);
+        // Checks if vision sees cargo or vision targets. This may not get called unless
+        // cargo vision detected
+        tapeSeen = tapeDetected.getBoolean(false);
+
+        if (tapeSeen)
+            targetAngle = tapeYaw.getDouble(0);
+        else
+            targetAngle = 0;
+
+    } else {
+
+
+        driveWanted.setBoolean(true);
+        tapeWanted.setBoolean(false);
+        cargoWanted.setBoolean(false);
+
+        targetAngle = 0;
+
+    }
+    //This code is all about vision tracking!!!
+
+
+    
+
+    convertFwd = Math.pow(forward, 2);
+      if(forward < 0) forward=convertFwd * -1;
+    convertTrn=Deadband(turn);
+    convertTrn = Math.pow(convertTrn, 2);
+      if(turn < 0) turn=convertTrn * -1;
+    if(turn > .75) turn=.75;
+    if(turn < -.75) turn=-.75;
     double output = limitOutput(-kP * targetAngle, 0.4);
 
     //So, hey.  We pressed a button.  So turn to a target.
