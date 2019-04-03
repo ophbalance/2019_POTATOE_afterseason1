@@ -387,7 +387,7 @@ public class Robot extends TimedRobot {
 
 
     
-
+    /*
     convertFwd = Math.pow(forward, 2);
       if(forward < 0) forward=convertFwd * -1;
     convertTrn=Deadband(turn);
@@ -395,6 +395,11 @@ public class Robot extends TimedRobot {
       if(turn < 0) turn=convertTrn * -1;
     if(turn > .75) turn=.75;
     if(turn < -.75) turn=-.75;
+    */
+    if(forward > .25) forward=.25;
+    if(forward < -.25) forward=-.25;
+    if(turn > .25) turn=.25;
+    if(turn < -.25) turn=-.25;
     double output = limitOutput(-kP * targetAngle, 0.4);
 
     //So, hey.  We pressed a button.  So turn to a target.

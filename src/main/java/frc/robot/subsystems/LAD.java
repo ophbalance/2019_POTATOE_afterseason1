@@ -20,12 +20,9 @@ import edu.wpi.first.wpilibj.VictorSP;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
-<<<<<<< HEAD
-=======
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Notifier;
->>>>>>> 907673043f6f1d7db064a434558f1e6f94403a48
 
 /**
  * An example subsystem.  You can replace me with your own Subsystem.

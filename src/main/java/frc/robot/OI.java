@@ -57,11 +57,8 @@ public Button LADUpdateAll = new JoystickButton(_operator, 4);
     LADrearDrop.whileHeld(new LADRearUpdate(RobotMap.REAR_SPEED));
     */
     LADDriveFwd.whileHeld(new LADUpdateDrive(RobotMap.DRIVE_SPEED));
-<<<<<<< HEAD
-=======
     LADHold.whileHeld(new LADAllLift(.15,-.15));
     LADRearHold.whileHeld(new LADRearUpdate(-.15));
->>>>>>> 907673043f6f1d7db064a434558f1e6f94403a48
     LADUpdateAll.whileHeld(new LADAllLift(RobotMap.FRONT_SPEED,-RobotMap.REAR_SPEED));
 
 //NEEDS TESTING
