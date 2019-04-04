@@ -54,8 +54,8 @@ public class Squishy extends Subsystem {
       double convertVal = 0;
       convertVal = Math.pow(p_val, 4);
         if(p_val < 0) convertVal=convertVal * -1;
-        if(convertVal > .65) convertVal=.65;
-        if(convertVal < -.65) convertVal=-.65;
+        if(convertVal > .45) convertVal=.45;
+        if(convertVal < -.45) convertVal=-.45;
       tilt.set(convertVal);
     }
 

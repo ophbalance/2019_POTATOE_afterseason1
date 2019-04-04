@@ -396,14 +396,18 @@ public class Robot extends TimedRobot {
     if(turn > .75) turn=.75;
     if(turn < -.75) turn=-.75;
     */
-    if(forward > .25) forward=.25;
-    if(forward < -.25) forward=-.25;
-    if(turn > .25) turn=.25;
-    if(turn < -.25) turn=-.25;
+    if (cargoDesired) {
+      //do nothing
+    } else {
+      if(forward > .35) forward=.35;
+      if(forward < -.35) forward=-.35;
+      if(turn > .35) turn=.35;
+      if(turn < -.35) turn=-.35;
+    }
     double output = limitOutput(-kP * targetAngle, 0.4);
 
     //So, hey.  We pressed a button.  So turn to a target.
-    if (cargoDesired || tapeDesired)    
+    if (tapeDesired)    
       _drive.arcadeDrive(-forward, -output);
     else  //Or not, cuz, that's like fine too
        _drive.arcadeDrive(-forward, turn);
