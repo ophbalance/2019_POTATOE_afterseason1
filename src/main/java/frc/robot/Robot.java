@@ -398,11 +398,12 @@ public class Robot extends TimedRobot {
     */
     if (cargoDesired) {
       //do nothing
+      if(forward > .45) forward=.45;
+      if(forward < -.45) forward=-.45;
+      if(turn > .45) turn=.50;
+      if(turn < -.45) turn=-.50;
     } else {
-      if(forward > .35) forward=.35;
-      if(forward < -.35) forward=-.35;
-      if(turn > .35) turn=.35;
-      if(turn < -.35) turn=-.35;
+      
     }
     double output = limitOutput(-kP * targetAngle, 0.4);
 
