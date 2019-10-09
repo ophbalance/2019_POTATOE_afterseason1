@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.OI;
 import frc.robot.subsystems.*;
@@ -32,7 +33,7 @@ import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.TimedRobot;
-
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 
 /**
@@ -47,12 +48,14 @@ public class Robot extends TimedRobot {
     public static LAD lad;
     public static Elevator elevator;
     public static DriveTrain drive;
+    public static Pnuemy pnue;
   //  public static AHRS ahrs;
     boolean autoBalanceXMode;
     boolean autoBalanceYMode;
     static final double kOffBalanceAngleThresholdDegrees = 10;
     static final double kOonBalanceAngleThresholdDegrees  = 5;
     public double startTime=0;
+    Compressor c = new Compressor(0);
     WPI_TalonSRX _leftMaster = new WPI_TalonSRX(11);
     WPI_TalonSRX _rightMaster = new WPI_TalonSRX(10);
     WPI_VictorSPX  _leftFollow = new WPI_VictorSPX (13);
@@ -93,6 +96,7 @@ public class Robot extends TimedRobot {
           //  DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
        // }
         
+    c.setClosedLoopControl(true);
     squishy = new Squishy();
     lad =  new LAD();
     elevator = new Elevator();
@@ -147,6 +151,7 @@ public class Robot extends TimedRobot {
         tapeVision = cargoVision = false;
         driverVision = true;
         targetAngle = 0;
+        
 
     m_oi = new OI();
     //m_chooser.setDefaultOption("Default Auto", new ExampleCommand());

@@ -45,7 +45,8 @@ public Button LADUpdateAll = new JoystickButton(_operator, 4);
   public Button SquishyClawClose = new JoystickButton(_squishy, 6);
 //^^^^^^^^
 
-
+public Button CloseSol = new JoystickButton(_driver,5);
+public Button OpenSol = new JoystickButton(_driver,6);
 
   public OI () {
 //GOOD
@@ -60,6 +61,8 @@ public Button LADUpdateAll = new JoystickButton(_operator, 4);
     LADHold.whileHeld(new LADAllLift(.15,-.15));
     LADRearHold.whileHeld(new LADRearUpdate(-.15));
     LADUpdateAll.whileHeld(new LADAllLift(RobotMap.FRONT_SPEED,-RobotMap.REAR_SPEED));
+    CloseSol.whenPressed(new SolClose());
+    OpenSol.whenPressed(new SolOpen());
 
 //NEEDS TESTING
 /*
