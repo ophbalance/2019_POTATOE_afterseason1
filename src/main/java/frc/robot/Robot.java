@@ -233,6 +233,8 @@ public class Robot extends TimedRobot {
     double turn = m_oi._driver.getTwist();
     double convertFwd = 0;
     double convertTrn = 0;
+    double leftStick = 1 * m_oi._tankdriver.getRawAxis(RobotMap.TANK_LEFTSTICK);
+    double rightStick = 1 * m_oi._tankdriver.getRawAxis(RobotMap.TANK_RIGHTSTICK);
 
     //This code is all about vision tracking!!!
     // If button 1 is pressed, then it will track cargo
@@ -289,9 +291,11 @@ public class Robot extends TimedRobot {
 
     //So, hey.  We pressed a button.  So turn to a target.
     if (cargoDesired || tapeDesired)    
-      _drive.arcadeDrive(-forward, -output);
+      //_drive.arcadeDrive(-forward, -output);
+      _drive.tankDrive(leftStick, rightStick);
     else  //Or not, cuz, that's like fine too
-       _drive.arcadeDrive(-forward, turn);
+      //_drive.arcadeDrive(-forward, turn);
+      _drive.tankDrive(leftStick, rightStick);
       
   }
 
@@ -343,7 +347,9 @@ public class Robot extends TimedRobot {
     double turn = m_oi._driver.getTwist();
     double convertFwd = 0;
     double convertTrn = 0;
-
+    double leftStick = 1 * m_oi._tankdriver.getRawAxis(RobotMap.TANK_LEFTSTICK);
+    double rightStick = 1 * m_oi._tankdriver.getRawAxis(RobotMap.TANK_RIGHTSTICK);
+    
     //This code is all about vision tracking!!!
     // If button 1 is pressed, then it will track cargo
     if (cargoDesired) {
@@ -409,9 +415,11 @@ public class Robot extends TimedRobot {
 
     //So, hey.  We pressed a button.  So turn to a target.
     if (tapeDesired)    
-      _drive.arcadeDrive(-forward, -output);
+      //_drive.arcadeDrive(-forward, -output);
+      _drive.tankDrive(leftStick, rightStick);
     else  //Or not, cuz, that's like fine too
-       _drive.arcadeDrive(-forward, turn);
+       //_drive.arcadeDrive(-forward, turn);
+       _drive.tankDrive(leftStick, rightStick);
     
   }
 

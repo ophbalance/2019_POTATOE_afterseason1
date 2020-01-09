@@ -46,6 +46,7 @@ public class RobotMap {
 	public static final int OI_DRIVER_CONTROLLER = 0; //joy1
   public static final int OI_OP_CONTROLLER = 1;     //joy2
   public static final int OI_SQUISHY = 2;           //joy3
+  public static final int OI_TANK = 3;           //joy4
   
 	public static final int DRIVE_JOY_FORWARD = 1;    //JOY_axis
 	public static final int DRIVE_JOY_TURN = 3;       //JOY_axis
@@ -59,4 +60,6 @@ public class RobotMap {
   public static final int SQUISHY_XBOX_LEFTSTICK = 1;    //JOY_axis
   public static final int SQUISHY_XBOX_RIGHTSTICK = 5;    //JOY_axis
 
+  public static final int TANK_LEFTSTICK = 1;    //JOY_axis
+  public static final int TANK_RIGHTSTICK = 5;    //JOY_axis
 }

@@ -20,6 +20,7 @@ public class OI {
   public Joystick _driver = new Joystick(RobotMap.OI_DRIVER_CONTROLLER); 
   public XboxController _operator = new XboxController(RobotMap.OI_OP_CONTROLLER);
   public XboxController _squishy = new XboxController(RobotMap.OI_SQUISHY);
+  public XboxController _tankdriver = new XboxController(RobotMap.OI_TANK);
 
   /*public Button LADfrontClimb = new JoystickButton(_operator, 2);
   public Button LADrearClimb = new JoystickButton(_operator, 3);
